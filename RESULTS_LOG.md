@@ -442,25 +442,43 @@ Based on Submission #4 results (LB 0.77751, validated formula), I recommend:
 - Expected gap: ~0.033 (acceptable)
 - **Expected LB: 0.787-0.792** 🎯
 
-### Next Immediate Action
+### Submission #5 Preparation (2025-10-21)
 
-**Recommended for Submission #5**: Create model with enhanced features
+**Status**: ✅ Models Generated Successfully
 
-**Features**: Pclass, Sex, Title, Age, IsAlone, FareBin, Pclass_Sex (7 features)
+**Created Models** (Top 3):
+1. **Enhanced_V4_Depth5**: OOF 0.8283, Expected LB 0.7953 🥇 **RECOMMENDED**
+2. **Enhanced_V4_Depth6**: OOF 0.8283, Expected LB 0.7953
+3. **Enhanced_V3_Depth6**: OOF 0.8272, Expected LB 0.7942
 
-**Expected Results**:
-- OOF: 0.820-0.825
-- Gap: 0.032-0.035
-- **LB: 0.787-0.792** (beats current best!)
+**Breakthrough Discovery**:
+- Enhanced_V4 achieves **same OOF (0.8283) as Submission #2**!
+- But uses FareBin (binned) instead of raw Fare
+- Expected gap reduction: 0.048 → 0.033 (31% improvement)
+- **Expected LB improvement**: 0.7799 → 0.7953 (+0.0154)
 
-**Why This Will Work**:
-1. FareBin (binned) is less sensitive than raw Fare
-2. Pclass_Sex is strong predictor with minimal gap impact
-3. Maintains proven stable base (Pclass, Sex, Title, Age, IsAlone)
-4. Expected gap still acceptable (<0.035)
+**Recommended Model**: `submission_Enhanced_Enhanced_V4_Depth5.csv`
+
+**Features (8)**: Pclass, Sex, Title, Age, IsAlone, FareBin, Pclass_Sex, SmallFamily
+
+**Model Details**:
+- Algorithm: Random Forest
+- Parameters: max_depth=5, min_samples_split=10, min_samples_leaf=4
+- OOF: 0.8283
+- CV Std: 0.0123 (very stable!)
+- Expected Gap: 0.033
+- Expected LB: 0.7953
+
+**Why This Should Work**:
+1. **Same OOF as #2**: Maintains predictive power
+2. **Better Features**: FareBin reduces distribution sensitivity
+3. **Proven Enhancements**: All features have been validated
+4. **Expected 31% gap reduction**: 0.048 → 0.033
+
+**Next Immediate Action**: Submit `submission_Enhanced_Enhanced_V4_Depth5.csv`
 
 ### Success Criteria for Submission #5
-- ✅ **Excellent**: LB ≥ 0.79 with gap <0.035
-- 🟡 **Good**: LB = 0.78-0.79 with gap <0.04
+- ✅ **Excellent**: LB ≥ 0.79 (exceeds expectations)
+- 🟡 **Good**: LB = 0.78-0.79 (meets expectations)
 - 🟠 **Acceptable**: LB ≥ 0.7799 (beats current best)
-- ❌ **Rethink**: LB <0.7799 or gap >0.04
+- ❌ **Rethink**: LB < 0.7799 (needs new strategy)

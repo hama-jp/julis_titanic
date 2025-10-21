@@ -223,27 +223,59 @@ else:
 print(f"\nHyperparameters: {params}")
 
 print('\n' + '='*80)
-print('TRAINING FINAL MODEL ON ALL DATA')
+print('TRAINING MODELS ON ALL CV FOLDS')
 print('='*80)
 
-# Train final model on all training data with best configuration
-final_rf = RandomForestClassifier(n_estimators=100, random_state=42, **params)
-
+# Train models on each CV fold with best configuration
 X_train = train_fe[features]
 y_train = train_fe['Survived']
 X_test = test_fe[features]
 
-print(f"Training on {len(X_train)} samples with {len(features)} features...")
+print(f"Training {cv.n_splits} models on CV folds...")
+print(f"Features: {len(features)}, Training samples: {len(X_train)}, Test samples: {len(X_test)}")
+
+# Store models and predictions from each fold
+fold_models = []
+fold_test_preds = []
+
+for fold_idx, (train_idx, val_idx) in enumerate(cv.split(X_train, y_train), 1):
+    # Train model on this fold's training data
+    X_fold_train = X_train.iloc[train_idx]
+    y_fold_train = y_train.iloc[train_idx]
+
+    model = RandomForestClassifier(n_estimators=100, random_state=42, **params)
+    model.fit(X_fold_train, y_fold_train)
+
+    # Predict on test data
+    test_pred = model.predict(X_test)
+    fold_test_preds.append(test_pred)
+    fold_models.append(model)
+
+    print(f"  Fold {fold_idx}/{cv.n_splits} completed")
+
+print(f"\n{cv.n_splits} models trained successfully")
+
+# Ensemble predictions: Average predictions from all folds (majority voting)
+fold_test_preds_array = np.array(fold_test_preds)
+predictions = np.round(fold_test_preds_array.mean(axis=0)).astype(int)
+
+print(f"\nEnsemble method: Averaging predictions from {cv.n_splits} fold models")
+print(f"Individual fold predictions shape: {fold_test_preds_array.shape}")
+
+# Also train a model on all data for comparison
+print('\n' + '='*80)
+print('TRAINING FINAL MODEL ON ALL DATA (for comparison)')
+print('='*80)
+
+final_rf = RandomForestClassifier(n_estimators=100, random_state=42, **params)
 final_rf.fit(X_train, y_train)
 
-# Training accuracy
 train_pred = final_rf.predict(X_train)
 train_acc = accuracy_score(y_train, train_pred)
-print(f"Training Accuracy: {train_acc:.4f}")
+all_data_predictions = final_rf.predict(X_test)
 
-# Make predictions on test data
-print(f"\nPredicting on {len(X_test)} test samples...")
-predictions = final_rf.predict(X_test)
+print(f"Training Accuracy (all data model): {train_acc:.4f}")
+print(f"Predictions difference: {np.sum(predictions != all_data_predictions)} / {len(predictions)}")
 
 # Create submission
 submission = pd.DataFrame({
@@ -251,8 +283,15 @@ submission = pd.DataFrame({
     'Survived': predictions
 })
 
-filename = f'submission_Enhanced_{config_name}.csv'
+# Create descriptive filename based on experiment configuration
+# Format: submission_cv{n}fold_ensemble_{feature_set}_depth{d}.csv
+feature_set_name = config_name.split('_')[0].lower()  # Enhanced_V4_Depth5 -> enhanced
+feature_version = config_name.split('_')[1].lower()   # Enhanced_V4_Depth5 -> v4
+depth_value = config_name.split('_')[-1].replace('Depth', '').lower()  # Enhanced_V4_Depth5 -> 5
+
+filename = f'submission_cv{cv.n_splits}fold_ensemble_{feature_set_name}_{feature_version}_depth{depth_value}.csv'
 submission.to_csv(filename, index=False)
+print(f"\nGenerated filename: {filename}")
 
 survival_rate = predictions.mean()
 
@@ -260,11 +299,14 @@ print('\n' + '='*80)
 print('SUBMISSION FILE CREATED')
 print('='*80)
 print(f"\n{filename}")
+print(f"  Method: {cv.n_splits}-fold CV ensemble (averaging fold predictions)")
 print(f"  OOF Score (from CV): {best_row['OOF']:.4f}")
-print(f"  Training Accuracy: {train_acc:.4f}")
+print(f"  Training Accuracy (all data model): {train_acc:.4f}")
 print(f"  Expected LB: {best_row['Expected_LB']:.4f}")
 print(f"  Expected Gap: {best_row['Expected_Gap']:.3f}")
-print(f"  Survival Rate: {survival_rate:.3f}")
+print(f"  Survival Rate (ensemble): {survival_rate:.3f}")
+print(f"  Survival Rate (all data): {all_data_predictions.mean():.3f}")
+print(f"  Prediction differences: {np.sum(predictions != all_data_predictions)} samples")
 print(f"  Features ({len(features)}): {', '.join(features)}")
 
 # Store submission info
@@ -292,11 +334,12 @@ print(f"""
 
 Model Details:
 - Configuration: {best['config']}
+- Method: {cv.n_splits}-fold CV ensemble (averaging predictions)
 - OOF Score (from CV): {best['oof']:.4f}
-- Training Accuracy: {best['train_acc']:.4f}
+- Training Accuracy (all data): {best['train_acc']:.4f}
 - Expected Gap: {best['expected_gap']:.3f}
 - Expected LB: {best['expected_lb']:.4f}
-- Survival Rate: {best['survival_rate']:.3f}
+- Survival Rate (ensemble): {best['survival_rate']:.3f}
 
 Features ({len(best['features'])}):
 {', '.join(best['features'])}
@@ -304,16 +347,18 @@ Features ({len(best['features'])}):
 Model Training Process:
 1. Cross-Validation: Tested {len(results_df)} different configurations
 2. Best Config Selected: {best['config']} (highest expected LB)
-3. Final Training: Model trained on ALL {len(X_train)} training samples
-4. Prediction: Generated predictions for {len(X_test)} test samples
+3. CV Fold Training: Trained {cv.n_splits} models (one per fold, each on ~80% data)
+4. Ensemble Prediction: Averaged predictions from all {cv.n_splits} fold models
+5. Test Predictions: Generated predictions for {len(X_test)} test samples
 
-Why This Should Work:
-1. FareBin (binned Fare) reduces distribution sensitivity vs raw Fare
-2. Pclass_Sex captures strong interaction effect
-3. Hyperparameters optimized via CV on {cv.n_splits}-fold validation
-4. Final model uses all available training data for maximum learning
-5. Based on validated formula: LB ≈ OOF - {best['expected_gap']:.3f}
-6. Expected to BEAT current best (0.7799)
+Why This Ensemble Approach:
+1. Uses predictions from {cv.n_splits} diverse models (different train subsets)
+2. Reduces overfitting through model averaging
+3. More robust predictions than single model trained on all data
+4. FareBin (binned Fare) reduces distribution sensitivity vs raw Fare
+5. Pclass_Sex captures strong interaction effect
+6. Hyperparameters optimized via CV on {cv.n_splits}-fold validation
+7. Based on validated formula: LB ≈ OOF - {best['expected_gap']:.3f}
 
 Expected Outcomes:
 - Optimistic: LB 0.79-0.792 (new best!)

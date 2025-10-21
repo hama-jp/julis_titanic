@@ -1,0 +1,50 @@
+================================================================================
+Sex×Pclass交互作用特徴量の評価結果
+================================================================================
+
+使用した特徴量（15個）:
+
+ベース特徴量:
+  1. Pclass
+  2. Sex
+  3. Age
+  4. SibSp
+  5. Parch
+  6. Fare
+  7. Title
+  8. FamilySize
+  9. Embarked_Q
+  10. Embarked_S
+
+Sex×Pclass交互作用:
+  1. SexPclass_Female_2
+  2. SexPclass_Female_3
+  3. SexPclass_Male_1
+  4. SexPclass_Male_2
+  5. SexPclass_Male_3
+
+--- OOFスコア ---
+ベースライン（9特徴）: 0.8384
+Sex×Pclass追加: 0.8361
+改善: -0.0023 (-0.23%)
+
+--- VIF（多重共線性） ---
+最大VIF: 999999.00
+
+VIF上位10件:
+   Feature    VIF
+    Pclass 999999
+       Sex 999999
+       Age 999999
+     SibSp 999999
+     Parch 999999
+      Fare 999999
+     Title 999999
+FamilySize 999999
+Embarked_Q 999999
+Embarked_S 999999
+
+--- 期待LB（Gap 6.09%仮定） ---
+期待LB Score: 0.77524
+ベースラインLB: 0.77751
+予想改善: -0.00227

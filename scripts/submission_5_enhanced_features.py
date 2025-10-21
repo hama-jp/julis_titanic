@@ -34,8 +34,8 @@ print('Expected: OOF 0.820-0.825, LB 0.787-0.792')
 print('='*80)
 
 # Load data
-train = pd.read_csv('train.csv')
-test = pd.read_csv('test.csv')
+train = pd.read_csv('data/raw/train.csv')
+test = pd.read_csv('data/raw/test.csv')
 
 # Feature engineering
 def engineer_features(df):
@@ -198,59 +198,88 @@ results_df = results_df.sort_values('Expected_LB', ascending=False)
 print(results_df.head(10)[['Config', 'NumFeatures', 'OOF', 'Expected_Gap', 'Expected_LB']].to_string(index=False))
 
 print('\n' + '='*80)
-print('CREATING SUBMISSION FILES')
+print('SELECTING BEST MODEL FROM CV')
 print('='*80)
 
-# Create submissions for top 3 models
-submissions = []
+# Select best model based on expected LB
+best_row = results_df.iloc[0]
+config_name = best_row['Config']
+features = best_row['features']
+depth = best_row['Depth']
 
-for i, row in results_df.head(3).iterrows():
-    config_name = row['Config']
-    features = row['features']
+print(f"Best Model: {config_name}")
+print(f"OOF Score: {best_row['OOF']:.4f}")
+print(f"Expected LB: {best_row['Expected_LB']:.4f}")
+print(f"Features ({len(features)}): {', '.join(features)}")
 
-    # Recreate model with same config
-    depth = row['Depth']
-    if depth == 4:
-        params = {'max_depth': 4, 'min_samples_split': 15, 'min_samples_leaf': 5}
-    elif depth == 5:
-        params = {'max_depth': 5, 'min_samples_split': 10, 'min_samples_leaf': 4}
-    else:
-        params = {'max_depth': 6, 'min_samples_split': 10, 'min_samples_leaf': 4}
+# Get hyperparameters for best model
+if depth == 4:
+    params = {'max_depth': 4, 'min_samples_split': 15, 'min_samples_leaf': 5}
+elif depth == 5:
+    params = {'max_depth': 5, 'min_samples_split': 10, 'min_samples_leaf': 4}
+else:
+    params = {'max_depth': 6, 'min_samples_split': 10, 'min_samples_leaf': 4}
 
-    rf = RandomForestClassifier(n_estimators=100, random_state=42, **params)
+print(f"\nHyperparameters: {params}")
 
-    X_train = train_fe[features]
-    y_train = train_fe['Survived']
-    X_test = test_fe[features]
+print('\n' + '='*80)
+print('TRAINING FINAL MODEL ON ALL DATA')
+print('='*80)
 
-    rf.fit(X_train, y_train)
-    predictions = rf.predict(X_test)
+# Train final model on all training data with best configuration
+final_rf = RandomForestClassifier(n_estimators=100, random_state=42, **params)
 
-    # Create submission
-    submission = pd.DataFrame({
-        'PassengerId': test['PassengerId'],
-        'Survived': predictions
-    })
+X_train = train_fe[features]
+y_train = train_fe['Survived']
+X_test = test_fe[features]
 
-    filename = f'submission_Enhanced_{config_name}.csv'
-    submission.to_csv(filename, index=False)
+print(f"Training on {len(X_train)} samples with {len(features)} features...")
+final_rf.fit(X_train, y_train)
 
-    survival_rate = predictions.mean()
+# Training accuracy
+train_pred = final_rf.predict(X_train)
+train_acc = accuracy_score(y_train, train_pred)
+print(f"Training Accuracy: {train_acc:.4f}")
 
-    submissions.append({
-        'filename': filename,
-        'config': config_name,
-        'oof': row['OOF'],
-        'expected_lb': row['Expected_LB'],
-        'expected_gap': row['Expected_Gap'],
-        'survival_rate': survival_rate,
-        'features': features
-    })
+# Make predictions on test data
+print(f"\nPredicting on {len(X_test)} test samples...")
+predictions = final_rf.predict(X_test)
 
-    print(f"\n{filename}")
-    print(f"  OOF: {row['OOF']:.4f} | Expected LB: {row['Expected_LB']:.4f} | Expected Gap: {row['Expected_Gap']:.3f}")
-    print(f"  Survival Rate: {survival_rate:.3f}")
-    print(f"  Features ({len(features)}): {', '.join(features)}")
+# Create submission
+submission = pd.DataFrame({
+    'PassengerId': test['PassengerId'],
+    'Survived': predictions
+})
+
+filename = f'submission_Enhanced_{config_name}.csv'
+submission.to_csv(filename, index=False)
+
+survival_rate = predictions.mean()
+
+print('\n' + '='*80)
+print('SUBMISSION FILE CREATED')
+print('='*80)
+print(f"\n{filename}")
+print(f"  OOF Score (from CV): {best_row['OOF']:.4f}")
+print(f"  Training Accuracy: {train_acc:.4f}")
+print(f"  Expected LB: {best_row['Expected_LB']:.4f}")
+print(f"  Expected Gap: {best_row['Expected_Gap']:.3f}")
+print(f"  Survival Rate: {survival_rate:.3f}")
+print(f"  Features ({len(features)}): {', '.join(features)}")
+
+# Store submission info
+submissions = [{
+    'filename': filename,
+    'config': config_name,
+    'oof': best_row['OOF'],
+    'train_acc': train_acc,
+    'expected_lb': best_row['Expected_LB'],
+    'expected_gap': best_row['Expected_Gap'],
+    'survival_rate': survival_rate,
+    'features': features
+}]
+
+best = submissions[0]
 
 print('\n' + '='*80)
 print('FINAL RECOMMENDATION FOR SUBMISSION #5')
@@ -259,11 +288,12 @@ print('='*80)
 best = submissions[0]
 
 print(f"""
-🥇 PRIMARY RECOMMENDATION: {best['filename']}
+🥇 FINAL MODEL: {best['filename']}
 
 Model Details:
 - Configuration: {best['config']}
-- OOF Score: {best['oof']:.4f}
+- OOF Score (from CV): {best['oof']:.4f}
+- Training Accuracy: {best['train_acc']:.4f}
 - Expected Gap: {best['expected_gap']:.3f}
 - Expected LB: {best['expected_lb']:.4f}
 - Survival Rate: {best['survival_rate']:.3f}
@@ -271,11 +301,19 @@ Model Details:
 Features ({len(best['features'])}):
 {', '.join(best['features'])}
 
+Model Training Process:
+1. Cross-Validation: Tested {len(results_df)} different configurations
+2. Best Config Selected: {best['config']} (highest expected LB)
+3. Final Training: Model trained on ALL {len(X_train)} training samples
+4. Prediction: Generated predictions for {len(X_test)} test samples
+
 Why This Should Work:
 1. FareBin (binned Fare) reduces distribution sensitivity vs raw Fare
 2. Pclass_Sex captures strong interaction effect
-3. Based on validated formula: LB ≈ OOF - {best['expected_gap']:.3f}
-4. Expected to BEAT current best (0.7799)
+3. Hyperparameters optimized via CV on {cv.n_splits}-fold validation
+4. Final model uses all available training data for maximum learning
+5. Based on validated formula: LB ≈ OOF - {best['expected_gap']:.3f}
+6. Expected to BEAT current best (0.7799)
 
 Expected Outcomes:
 - Optimistic: LB 0.79-0.792 (new best!)
@@ -293,14 +331,6 @@ Next Steps After #5:
 - If LB 0.78-0.79: Try ensemble or higher capacity
 - If LB <0.78: May need to try GB or different approach
 """)
-
-print('\n' + '='*80)
-print('BACKUP OPTIONS')
-print('='*80)
-
-for i, sub in enumerate(submissions[1:3], 2):
-    print(f"\n🥈 Option {i}: {sub['filename']}")
-    print(f"   OOF: {sub['oof']:.4f} | Expected LB: {sub['expected_lb']:.4f}")
 
 print('\n' + '='*80)
 print('DONE! Ready for submission.')

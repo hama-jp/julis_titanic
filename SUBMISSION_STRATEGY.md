@@ -1,9 +1,10 @@
 # Titanic Submission Strategy
 
-## Current Status
-- **Submission #1**: CV=0.837, LB=0.770 (gap: 0.067)
-- **Remaining Submissions**: 9
-- **Issue**: Overfitting detected (CV/LB gap too large)
+## Current Status (Updated: 2025-10-21)
+- **Submission #1**: CV=0.8373, LB=0.7703 (gap: 0.0670)
+- **Submission #2**: OOF=0.8283, LB=0.7799 (gap: 0.0484) ✓ **Current Best**
+- **Remaining Submissions**: 8
+- **Progress**: Gap reduced by 27.8%, LB improved by +0.0096
 
 ## Analysis
 
@@ -157,3 +158,128 @@ VotingClassifier(
 4. ⏭️ **Submit #4**: `submission_V6_Original_LR.csv`
 5. ⏸️ Wait for LB scores
 6. ⏸️ Analyze results and plan Phase 2
+
+---
+
+## UPDATE: Submission #2 Results (2025-10-21)
+
+### ✅ Submission #2: submission_V3_WithFare_RF.csv
+
+**Results**:
+- **LB Score**: 0.7799
+- **OOF Score**: 0.8283
+- **Gap**: 0.0484
+- **Improvement from #1**: +0.0096 (1.25%)
+- **Gap Reduction**: 0.0670 → 0.0484 (-27.8%)
+
+**Model Details**:
+- Algorithm: Random Forest (Conservative)
+- Features: Pclass, Sex, Title, Fare (4 features)
+- Parameters: max_depth=4, min_samples_split=15, min_samples_leaf=5
+
+### 📊 Key Learnings
+
+**What Worked** ✅:
+1. **Feature Reduction**: 6 → 4 features reduced overfitting
+2. **Conservative Parameters**: Prevented overfitting, improved generalization
+3. **Gap Reduction**: 27.8% reduction confirms simpler models work better
+
+**What Still Needs Work** ⚠️:
+1. **Remaining Gap**: 0.0484 still indicates some overfitting
+2. **Distribution Differences**: Fare has 3.36 mean difference (Train vs Test)
+3. **Score Below Expectation**: Expected 0.78-0.81, got 0.7799
+
+### 🎯 Next Generation Strategy
+
+Based on Submission #2 results, new approach focuses on:
+
+1. **Remove Fare** (largest Train/Test distribution gap)
+2. **Even Simpler Models** (target OOF ~0.79-0.80 for better alignment)
+3. **Focus on Stable Features** (Age, IsAlone instead of Fare)
+
+### 📁 New Models Generated (Next Generation)
+
+| Model | Algorithm | Features | OOF | Expected LB | Description |
+|-------|-----------|----------|-----|-------------|-------------|
+| **NextGen_Simple_Minimal_5** | LR | Pclass, Sex, Title, Age, IsAlone (5) | 0.7946 | 0.77-0.80 | Closest to current LB ⭐ |
+| NextGen_Ensemble_LR_RF | Voting | Pclass, Sex, Title, Age, IsAlone (5) | 0.7980 | 0.78-0.81 | Weighted ensemble |
+| NextGen_LR_NoFare_V2 | LR | Pclass, Sex, Title, Age, IsAlone (5) | 0.7991 | 0.78-0.81 | No Fare, stable |
+| NextGen_RF_NoFare_V2 | RF | Pclass, Sex, Title, Age, IsAlone (5) | 0.8058 | 0.79-0.82 | No Fare, RF |
+
+### 🥇 Recommendation for Submission #3
+
+**Primary**: `submission_NextGen_Simple_Minimal_5.csv`
+
+**Rationale**:
+- OOF 0.7946 is **closest to current LB** (0.7799)
+- Expected gap: ~0.015 (vs current 0.048)
+- Uses stable features (removed Fare)
+- Simple Logistic Regression (highly generalizable)
+- Strong regularization (C=0.05)
+
+**Expected Outcome**:
+- **Optimistic**: LB 0.79-0.80 (small gap, improvement)
+- **Realistic**: LB 0.77-0.79 (small gap, stable)
+- **Pessimistic**: LB 0.76-0.77 (need different approach)
+
+**Key Hypothesis**:
+- Removing Fare will improve Train/Test alignment
+- Lower OOF (0.7946 vs 0.8283) will reduce gap
+- Target gap <0.03 (vs current 0.048)
+
+### 📋 Updated Submission Plan (8 Remaining)
+
+#### Phase 1: Test "Remove Fare" Hypothesis (Submissions #3-4)
+- **#3**: NextGen_Simple_Minimal_5 (OOF 0.7946) - Test minimal gap approach
+- **#4**: NextGen_LR_NoFare_V2 (OOF 0.7991) OR NextGen_Ensemble (OOF 0.7980)
+
+**Decision Point after #3**:
+- If gap < 0.03: Continue with No-Fare approach, optimize further
+- If gap >= 0.03: Try ensemble or different features
+
+#### Phase 2: Optimization (Submissions #5-7)
+Based on Phase 1 results:
+- **Scenario A** (gap < 0.03): Fine-tune regularization, try feature variants
+- **Scenario B** (gap >= 0.03): Try ensemble, stacking, or different algorithms
+
+#### Phase 3: Final Push (Submissions #8-10)
+- Best model variations
+- Ensemble of best performers
+- Reserve #10 for absolute best
+
+### 🔬 Technical Insights
+
+**Why Remove Fare?**
+1. **Train/Test Distribution Gap**: 
+   - Train mean: 32.2
+   - Test mean: 35.6
+   - Difference: 3.36 (largest among all features)
+2. **High Variance**: Fare has high std deviation in both sets
+3. **Replacement**: Age + IsAlone provide similar information with better stability
+
+**Why Lower OOF Target?**
+1. Previous pattern: High OOF (0.82-0.84) → Large gap (0.04-0.07)
+2. New strategy: OOF ~0.79-0.80 → Target gap <0.03
+3. Better CV/LB alignment = more predictable results
+
+### 📈 Progress Tracking
+
+| Metric | Initial (#1) | Current (#2) | Target (#3) | Goal |
+|--------|--------------|--------------|-------------|------|
+| LB Score | 0.7703 | 0.7799 | 0.77-0.79 | 0.80+ |
+| CV/OOF | 0.8373 | 0.8283 | 0.7946 | ~0.80 |
+| Gap | 0.0670 | 0.0484 | <0.03 | <0.02 |
+| Gap % | - | -27.8% | -40%+ | -70%+ |
+
+### ✅ Action Items
+
+1. **Immediate**: Submit `submission_NextGen_Simple_Minimal_5.csv`
+2. **Record**: Update RESULTS_LOG.md with LB score
+3. **Analyze**: Calculate gap, compare to expectation
+4. **Decide**: Choose #4 based on #3 results
+5. **Iterate**: Continue gap reduction strategy
+
+---
+
+**Last Updated**: 2025-10-21  
+**Next Review**: After Submission #3 results

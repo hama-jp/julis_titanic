@@ -283,8 +283,15 @@ submission = pd.DataFrame({
     'Survived': predictions
 })
 
-filename = f'submission_{config_name}.csv'
+# Create descriptive filename based on experiment configuration
+# Format: submission_cv{n}fold_ensemble_{feature_set}_depth{d}.csv
+feature_set_name = config_name.split('_')[0].lower()  # Enhanced_V4_Depth5 -> enhanced
+feature_version = config_name.split('_')[1].lower()   # Enhanced_V4_Depth5 -> v4
+depth_value = config_name.split('_')[-1].replace('Depth', '').lower()  # Enhanced_V4_Depth5 -> 5
+
+filename = f'submission_cv{cv.n_splits}fold_ensemble_{feature_set_name}_{feature_version}_depth{depth_value}.csv'
 submission.to_csv(filename, index=False)
+print(f"\nGenerated filename: {filename}")
 
 survival_rate = predictions.mean()
 

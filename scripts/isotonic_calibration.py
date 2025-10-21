@@ -256,23 +256,39 @@ for name in model_configs.keys():
     print(f"  Model: {name} (Isotonic Calibrated)")
     print(f"  Survival Rate: {survival_rate:.3f}")
 
-# Calibrated ensemble (simple average)
-ensemble_proba = (final_predictions['RF']['proba'] +
-                  final_predictions['GB']['proba'] +
-                  final_predictions['LR']['proba']) / 3
-ensemble_pred = (ensemble_proba >= 0.5).astype(int)
+# Calibrated ensemble using Soft Voting
+from sklearn.ensemble import VotingClassifier
+
+print("\nTraining calibrated ensemble (Soft Voting)...")
+
+# Create Soft Voting ensemble with calibrated models
+voting_soft = VotingClassifier(
+    estimators=[
+        ('rf', final_models['RF']),
+        ('gb', final_models['GB']),
+        ('lr', final_models['LR'])
+    ],
+    voting='soft'
+)
+
+# Fit on all training data
+voting_soft.fit(X_train, y_train)
+
+# Predict on test set
+ensemble_proba = voting_soft.predict_proba(X_test)[:, 1]
+ensemble_pred = voting_soft.predict(X_test)
 
 submission = pd.DataFrame({
     'PassengerId': test['PassengerId'],
     'Survived': ensemble_pred
 })
 
-filename = 'submission_ensemble_calibrated_9features.csv'
+filename = 'submission_ensemble_calibrated_softvoting_9features.csv'
 submission.to_csv(filename, index=False)
 
 survival_rate = ensemble_pred.mean()
 print(f"\n{filename}")
-print(f"  Model: Ensemble (RF+GB+LR, Isotonic Calibrated)")
+print(f"  Model: Ensemble Soft Voting (RF+GB+LR, Isotonic Calibrated)")
 print(f"  Survival Rate: {survival_rate:.3f}")
 
 print("\n" + "=" * 80)
@@ -320,8 +336,8 @@ best_improvement = results_df.loc[best_idx, 'Brier_Improvement']
 
 print(f"\n1st Priority: submission_{best_model.lower()}_calibrated_9features.csv")
 print(f"   Best Brier improvement: {best_improvement:+.4f}")
-print(f"\n2nd Priority: submission_ensemble_calibrated_9features.csv")
-print(f"   Combines RF+GB+LR (all calibrated)")
+print(f"\n2nd Priority: submission_ensemble_calibrated_softvoting_9features.csv")
+print(f"   Soft Voting with RF+GB+LR (all calibrated)")
 print(f"\n3rd Priority: Compare with uncalibrated versions")
 print(f"   Test if calibration improves LB score")
 

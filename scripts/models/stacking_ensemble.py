@@ -9,6 +9,21 @@ Stacking Ensemble - メタ学習による高精度アンサンブル
 2. メタモデル: LogisticRegression（シンプル、過学習しにくい）
 3. Out-of-Fold予測でメタ特徴量生成
 4. リーケージ防止（testデータの情報は使わない）
+
+===============================================================================
+⚠️  WARNING: このファイルの欠損値補完は Train/Test 分離が不適切です
+===============================================================================
+
+問題点:
+  - Fare補完がTrain/Test個別に実行されている
+  - Test PassengerId=1044 のFare欠損が Test データのみから補完される
+  - 結果: Fare=7.90 (誤) ← 本来は Fare=8.05 (正)
+
+正しい実装:
+  scripts/preprocessing/correct_imputation_pipeline.py を使用してください
+  詳細: scripts/preprocessing/IMPUTATION_WARNING.md を参照
+
+===============================================================================
 """
 
 import pandas as pd

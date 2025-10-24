@@ -47,3 +47,7 @@ Thumbs.db
 # Data (optional - uncomment if you don't want to track large datasets)
 # data/processed/
 # data/interim/
+
+# Submission files in root (should be in submissions/ directory)
+/*.csv
+!/README.csv  # Allow README.csv if exists

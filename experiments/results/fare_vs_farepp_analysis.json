@@ -1,0 +1,19 @@
+{
+  "correlation": 0.8270733369694273,
+  "fare_importance": 0.12308979591221579,
+  "farepp_importance": 0.15409247795791545,
+  "best_results_by_model": {
+    "GradientBoosting": {
+      "Features": "Baseline + Ticket_Fare_Per_Person",
+      "CV_Score": 0.8428535559600778
+    },
+    "LightGBM": {
+      "Features": "Baseline + Fare",
+      "CV_Score": 0.8361308141359614
+    },
+    "RandomForest": {
+      "Features": "Baseline + Both",
+      "CV_Score": 0.8372606867114432
+    }
+  }
+}

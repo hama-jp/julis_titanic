@@ -1,0 +1,17 @@
+{
+  "match_rate": 0.7811447811447811,
+  "correlation": {
+    "SibSp_Ticket_GroupSize": 0.7273309685782522,
+    "Parch_Ticket_GroupSize": 0.6383605893193858,
+    "FamilySize_Ticket_GroupSize": 0.8160201069084634
+  },
+  "best_config": {
+    "model": "GradientBoosting",
+    "features": "FamilySize + SmallFamily + Ticket_GroupSize",
+    "score": 0.8451195781809051,
+    "num_features": 10
+  },
+  "gb_baseline_score": 0.8428535559600778,
+  "gb_best_score": 0.8451195781809051,
+  "gb_improvement": 0.0022660222208272796
+}

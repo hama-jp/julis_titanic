@@ -152,14 +152,19 @@ MEDIUM (1): その他
 
 ## 6. 推奨事項
 
-### ✅ 推奨する特徴量セット
+### ✅ 推奨する特徴量セット（モデル別）
 
-**Option 1: All Ticket（最良性能）**
-- 全6つのTicket特徴量を追加
-- **期待改善: +0.0090** (GradientBoosting)
-- 特徴量数: 17
+**Tree-basedモデル（推奨）**
+- **GradientBoosting / LightGBM / RandomForest**: 全6つのTicket特徴量を追加
+- **期待改善**: +0.0090 (GradientBoosting), +0.0023 (LightGBM), +0.0022 (RandomForest)
+- 特徴量: `Ticket_GroupSize`, `Ticket_Fare_Per_Person`, `Ticket_Is_Numeric`,
+  `Ticket_Prefix_Category`, `Ticket_Length`, `Ticket_SmallGroup`
 
-**Option 2: Top3 Ticket（シンプル）**
+**線形モデル（推奨）**
+- **LogisticRegression**: Ticket特徴量を**使わない**（ベースラインのみ）
+- 理由: 多重共線性により悪化（-0.78% ～ -1.26%）
+
+**Option 2: Top3 Ticket（シンプル構成、Tree-based向け）**
 - `Ticket_Is_Numeric`, `Ticket_SmallGroup`, `Ticket_Prefix_Category`
 - 期待改善: +0.0056
 - 特徴量数: 14
@@ -170,12 +175,15 @@ MEDIUM (1): その他
    - ただし、両方を含めた方が性能が良い（All Ticket: +0.0090）
    - Tree-basedモデルは多重共線性に強い
 
-2. **LogisticRegressionでは悪化**: -0.0123
-   - 線形モデルは多重共線性に弱い
-   - 正則化や特徴量選択が必要
+2. **LogisticRegressionでは推奨しない**: -0.0123 ～ -0.0101
+   - 線形モデルは多重共線性に弱い（VIF = ∞ for SibSp/Parch/FamilySize）
+   - 4つの戦略を試したがすべて悪化（-0.78% ～ -1.26%）
+   - 正則化強化（C=0.1）でも悪化（-0.33%）
+   - **推奨**: LogisticRegressionではTicket特徴量を使わない
+   - 詳細: `TICKET_FEATURES_LINEAR_MODEL_ANALYSIS.md` 参照
 
 3. **Ticket_Fare_Per_Personの重要性**:
-   - GradientBoostingで2番目に重要
+   - GradientBoostingで2番目に重要（重要度0.139）
    - FareとTicket_GroupSizeの相互作用を捉えている
 
 ### 🎯 次のステップ

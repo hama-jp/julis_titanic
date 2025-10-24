@@ -248,9 +248,10 @@ print(f"  Best params: {study_lgb.best_params}")
 print("\nLogisticRegression最適化...")
 study_lr = optuna.create_study(direction='maximize', sampler=TPESampler(seed=42))
 study_lr.optimize(objective_lr, n_trials=50, show_progress_bar=True)
-best_params['LogisticRegression'] = study_lr.best_params
+# solver and max_iter are fixed in objective, so add them to best_params
+best_params['LogisticRegression'] = {**study_lr.best_params, 'solver': 'saga', 'max_iter': 1000}
 print(f"  Best score: {study_lr.best_value:.4f}")
-print(f"  Best params: {study_lr.best_params}")
+print(f"  Best params: {best_params['LogisticRegression']}")
 
 # パラメータ保存
 import json

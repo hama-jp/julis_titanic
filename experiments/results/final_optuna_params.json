@@ -1,0 +1,96 @@
+{
+  "GradientBoosting": {
+    "best_params": {
+      "n_estimators": 215,
+      "max_depth": 5,
+      "learning_rate": 0.0379776814144372,
+      "subsample": 0.9525137511545073,
+      "min_samples_split": 12,
+      "min_samples_leaf": 2
+    },
+    "best_score": 0.8496139602033772,
+    "features": [
+      "Pclass",
+      "Sex",
+      "Title",
+      "Embarked_Missing",
+      "Embarked_Q",
+      "Embarked_S",
+      "FamilySize",
+      "SmallFamily",
+      "Ticket_GroupSize",
+      "Ticket_Fare_Per_Person",
+      "Ticket_Is_Numeric",
+      "Ticket_Prefix_Category"
+    ]
+  },
+  "RandomForest": {
+    "best_params": {
+      "n_estimators": 239,
+      "max_depth": 6,
+      "min_samples_split": 9,
+      "min_samples_leaf": 1,
+      "max_features": null
+    },
+    "best_score": 0.8484715334881677,
+    "features": [
+      "Pclass",
+      "Sex",
+      "Title",
+      "Embarked_Missing",
+      "Embarked_Q",
+      "Embarked_S",
+      "Ticket_GroupSize",
+      "Ticket_Fare_Per_Person",
+      "Ticket_Is_Numeric",
+      "Ticket_Prefix_Category"
+    ]
+  },
+  "LightGBM": {
+    "best_params": {
+      "n_estimators": 194,
+      "max_depth": 6,
+      "learning_rate": 0.08308329420376043,
+      "num_leaves": 56,
+      "subsample": 0.9021044256675466,
+      "colsample_bytree": 0.8549591801633177,
+      "min_child_samples": 25
+    },
+    "best_score": 0.8507312786391313,
+    "features": [
+      "Pclass",
+      "Sex",
+      "Title",
+      "Embarked_Missing",
+      "Embarked_Q",
+      "Embarked_S",
+      "Ticket_GroupSize",
+      "Ticket_SmallGroup",
+      "Ticket_Fare_Per_Person",
+      "Ticket_Is_Numeric",
+      "Ticket_Prefix_Category"
+    ]
+  },
+  "LogisticRegression": {
+    "best_params": {
+      "C": 0.9846738873614566,
+      "penalty": "l1",
+      "solver": "saga",
+      "max_iter": 1000
+    },
+    "best_score": 0.7721423639445107,
+    "features": [
+      "Pclass",
+      "Sex",
+      "Title",
+      "Embarked_Missing",
+      "Embarked_Q",
+      "Embarked_S",
+      "SibSp",
+      "Parch",
+      "FamilySize",
+      "SmallFamily",
+      "Fare"
+    ]
+  }
+}

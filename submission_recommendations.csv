@@ -1,6 +1,0 @@
-name,filename,model,oof_score,survival_rate,description
-Best_Single_RF,submission_best_single_rf.csv,RandomForest,0.8294051627384961,0.3875598086124402,単一モデル最良、シンプル
-Hard_Voting,submission_hard_voting.csv,Hard Voting (LGB+GB+RF),0.8294051627384961,0.37799043062200954,多数決アンサンブル、安定性高
-Soft_Voting,submission_soft_voting.csv,Soft Voting (LGB+GB+RF),0.8249158249158249,0.35406698564593303,確率平均アンサンブル、柔軟性高
-Weighted_Soft_Voting,submission_weighted_soft_voting.csv,Weighted Soft Voting,0.8249158249158249,0.35406698564593303,"重み付きアンサンブル (LGB:0.33, GB:0.33, RF:0.33)"
-LightGBM_Single,submission_lightgbm_single.csv,LightGBM,0.8226711560044894,0.37559808612440193,最良個別モデル、過学習最小

@@ -1,0 +1,137 @@
+{
+  "prefix_survival": {
+    "Survival_Rate": {
+      "F_C_C": 0.8,
+      "PC": 0.65,
+      "C_A": 0.4815,
+      "SC_PARIS": 0.4444,
+      "STON_O": 0.4444,
+      "C": 0.4,
+      "NUMERIC": 0.3843,
+      "SOTON_OQ": 0.1429,
+      "SOTON_O_Q": 0.125,
+      "W_C": 0.1,
+      "A": 0.0714,
+      "CA": 0.0714,
+      "S_O_C": 0.0
+    },
+    "Count": {
+      "F_C_C": 5,
+      "PC": 60,
+      "C_A": 27,
+      "SC_PARIS": 9,
+      "STON_O": 18,
+      "C": 5,
+      "NUMERIC": 661,
+      "SOTON_OQ": 7,
+      "SOTON_O_Q": 8,
+      "W_C": 10,
+      "A": 28,
+      "CA": 14,
+      "S_O_C": 5
+    }
+  },
+  "groupsize_survival": {
+    "Survival_Rate": {
+      "1": 0.2703,
+      "2": 0.5138,
+      "3": 0.6535,
+      "4": 0.7273,
+      "5": 0.3333,
+      "6": 0.2105,
+      "7": 0.2083,
+      "8": 0.3846,
+      "11": 0.0
+    },
+    "Count": {
+      "1": 481,
+      "2": 181,
+      "3": 101,
+      "4": 44,
+      "5": 21,
+      "6": 19,
+      "7": 24,
+      "8": 13,
+      "11": 7
+    }
+  },
+  "prefix_fare": {
+    "Fare_Mean": {
+      "PC": 122.0805,
+      "S_O_C": 73.5,
+      "CA": 55.4143,
+      "NUMERIC": 27.1309,
+      "SC_PARIS": 24.7944,
+      "W_C": 22.345,
+      "F_C_C": 22.05,
+      "C_A": 18.3278,
+      "C": 10.1233,
+      "A": 10.044,
+      "STON_O": 8.6722,
+      "SOTON_OQ": 7.7929,
+      "SOTON_O_Q": 7.3
+    },
+    "Fare_Median": {
+      "PC": 79.2,
+      "S_O_C": 73.5,
+      "CA": 58.225,
+      "NUMERIC": 13.0,
+      "SC_PARIS": 15.05,
+      "W_C": 23.45,
+      "F_C_C": 26.25,
+      "C_A": 15.9,
+      "C": 7.25,
+      "A": 8.05,
+      "STON_O": 7.925,
+      "SOTON_OQ": 8.05,
+      "SOTON_O_Q": 7.05
+    },
+    "Count": {
+      "PC": 60,
+      "S_O_C": 5,
+      "CA": 14,
+      "NUMERIC": 661,
+      "SC_PARIS": 9,
+      "W_C": 10,
+      "F_C_C": 5,
+      "C_A": 27,
+      "C": 5,
+      "A": 28,
+      "STON_O": 18,
+      "SOTON_OQ": 7,
+      "SOTON_O_Q": 8
+    },
+    "Pclass_Mean": {
+      "PC": 1.0,
+      "S_O_C": 2.0,
+      "CA": 3.0,
+      "NUMERIC": 2.348,
+      "SC_PARIS": 2.0,
+      "W_C": 2.7,
+      "F_C_C": 2.0,
+      "C_A": 2.2963,
+      "C": 3.0,
+      "A": 3.0,
+      "STON_O": 3.0,
+      "SOTON_OQ": 3.0,
+      "SOTON_O_Q": 3.0
+    }
+  },
+  "high_survival_prefixes": [
+    "F_C_C",
+    "PC"
+  ],
+  "low_survival_prefixes": [
+    "SOTON_OQ",
+    "SOTON_O_Q",
+    "W_C",
+    "A",
+    "CA",
+    "S_O_C"
+  ],
+  "high_fare_prefixes": [
+    "PC",
+    "S_O_C",
+    "CA"
+  ]
+}

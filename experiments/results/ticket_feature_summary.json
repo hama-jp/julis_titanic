@@ -1,0 +1,35 @@
+{
+  "best_feature_set": "Baseline + All Ticket",
+  "best_model": "LightGBM",
+  "best_cv_score": 0.8384031134266523,
+  "best_cv_std": 0.017348808203768443,
+  "baseline_score": 0.8361308141359614,
+  "improvement": 0.002272299290690949,
+  "ticket_features": [
+    "Ticket_GroupSize",
+    "Ticket_Length",
+    "Ticket_Prefix_Category",
+    "Ticket_Is_Numeric",
+    "Ticket_Fare_Per_Person",
+    "Ticket_SmallGroup"
+  ],
+  "recommended_features": [
+    "Pclass",
+    "Sex",
+    "SibSp",
+    "Parch",
+    "Fare",
+    "Title",
+    "FamilySize",
+    "SmallFamily",
+    "Embarked_Missing",
+    "Embarked_Q",
+    "Embarked_S",
+    "Ticket_GroupSize",
+    "Ticket_Length",
+    "Ticket_Prefix_Category",
+    "Ticket_Is_Numeric",
+    "Ticket_Fare_Per_Person",
+    "Ticket_SmallGroup"
+  ]
+}

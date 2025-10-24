@@ -1,0 +1,48 @@
+{
+  "baseline_score": 0.8036030381018142,
+  "best_strategy": "Strategy 4: Fare\u7cfb\u7d71\u4e00",
+  "best_score": 0.7957692549118072,
+  "improvement": -0.007833783190007049,
+  "recommended_features": [
+    "Pclass",
+    "Sex",
+    "SibSp",
+    "Parch",
+    "Title",
+    "FamilySize",
+    "SmallFamily",
+    "Embarked_Missing",
+    "Embarked_Q",
+    "Embarked_S",
+    "Ticket_Fare_Per_Person",
+    "Ticket_Is_Numeric",
+    "Ticket_Prefix_Category",
+    "Ticket_SmallGroup"
+  ],
+  "all_strategies": [
+    {
+      "name": "Strategy 1: \u9ad8VIF\u7279\u5fb4\u91cf\u3092\u9664\u5916",
+      "score": 0.7957567007720796,
+      "improvement": -0.00784633732973461,
+      "num_features": 15
+    },
+    {
+      "name": "Strategy 2: Ticket\u91cd\u8907\u9664\u5916",
+      "score": 0.794651936476053,
+      "improvement": -0.008951101625761182,
+      "num_features": 14
+    },
+    {
+      "name": "Strategy 3: \u6700\u5c0f\u69cb\u6210",
+      "score": 0.7935220639005712,
+      "improvement": -0.010080974201242987,
+      "num_features": 12
+    },
+    {
+      "name": "Strategy 4: Fare\u7cfb\u7d71\u4e00",
+      "score": 0.7957692549118072,
+      "improvement": -0.007833783190007049,
+      "num_features": 14
+    }
+  ]
+}

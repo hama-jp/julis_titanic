@@ -74,6 +74,10 @@ def engineer_features(df):
     df['IsChild'] = (df['Age'] < 16).astype(int)
     df['IsElderly'] = (df['Age'] >= 60).astype(int)
 
+    # AgeBin: Binning continuous age into categories
+    df['AgeBin'] = pd.cut(df['Age'], bins=[0, 16, 32, 48, 64, 100], labels=False, right=False)
+    df['AgeBin'] = df['AgeBin'].astype(int)
+
     # Fare imputation and binning
     df['Fare'] = df.groupby('Pclass')['Fare'].transform(
         lambda x: x.fillna(x.median())
@@ -157,6 +161,14 @@ feature_configs = {
     'Enhanced_V5': {
         'features': ['Pclass', 'Sex', 'Title', 'Age', 'IsAlone', 'FareBin', 'Pclass_Sex', 'IsChild'],
         'description': 'V3 + IsChild'
+    },
+    'Enhanced_V6_AgeBin': {
+        'features': ['Pclass', 'Sex', 'Title', 'AgeBin', 'IsAlone', 'FareBin', 'Pclass_Sex'],
+        'description': 'V3 with AgeBin instead of Age'
+    },
+    'Enhanced_V7_AgeBin': {
+        'features': ['Pclass', 'Sex', 'Title', 'AgeBin', 'IsAlone', 'FareBin', 'Pclass_Sex', 'SmallFamily'],
+        'description': 'V4 with AgeBin instead of Age'
     },
 }
 

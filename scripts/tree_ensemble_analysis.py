@@ -201,13 +201,32 @@ print('\n' + '='*80)
 print('SELECTING BEST MODEL FROM CV')
 print('='*80)
 
-# Select best model based on expected LB
-best_row = results_df.iloc[0]
-config_name = best_row['Config']
-features = best_row['features']
-depth = best_row['Depth']
+import argparse
 
-print(f"Best Model: {config_name}")
+# --- Argument Parsing ---
+parser = argparse.ArgumentParser(description='Run tree ensemble analysis.')
+parser.add_argument('--mode', type=str, default='best', choices=['best', 'conservative'],
+                    help='The mode to run: "best" selects the top model, "conservative" uses a hardcoded safer model.')
+args = parser.parse_args()
+print(f"Running in {args.mode} mode.")
+print('='*80)
+
+
+# Select best model based on mode
+if args.mode == 'best':
+    best_row = results_df.iloc[0]
+    config_name = best_row['Config']
+    features = best_row['features']
+    depth = best_row['Depth']
+    print(f"Best Model (selected dynamically): {config_name}")
+else: # conservative mode
+    config_name = 'Enhanced_V4_Depth4'
+    features = feature_configs['Enhanced_V4']['features']
+    depth = 4
+    best_row = results_df[results_df['Config'] == config_name].iloc[0]
+    print(f"Best Model (hardcoded for conservative approach): {config_name}")
+
+
 print(f"OOF Score: {best_row['OOF']:.4f}")
 print(f"Expected LB: {best_row['Expected_LB']:.4f}")
 print(f"Features ({len(features)}): {', '.join(features)}")
@@ -303,10 +322,11 @@ submission = pd.DataFrame({
 })
 
 # Create descriptive filename based on experiment configuration
-# Format: submission_tree_ensemble_{feature_version}.csv
+# Format: submission_{mode}_tree_ensemble_{feature_version}.csv
 feature_version = config_name.split('_')[1].lower()   # Enhanced_V4_Depth5 -> v4
 
-filename = f'submissions/submission_tree_ensemble_{feature_version}.csv'
+filename = f'submissions/submission_{args.mode}_tree_ensemble_{feature_version}.csv'
+
 submission.to_csv(filename, index=False)
 print(f"\nGenerated filename: {filename}")
 

@@ -17,13 +17,23 @@ Features: Pclass, Sex, Title, Age, IsAlone, FareBin, Pclass_Sex (7)
 
 import pandas as pd
 import numpy as np
-from sklearn.model_selection import StratifiedKFold, cross_val_score, cross_val_predict
+from sklearn.model_selection import StratifiedKFold, cross_val_score, cross_val_predict, RepeatedStratifiedKFold, GroupKFold
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 import lightgbm as lgb
 from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import accuracy_score
 import warnings
+import argparse
 warnings.filterwarnings('ignore')
+
+# --- Argument Parsing ---
+parser = argparse.ArgumentParser(description='Run tree ensemble analysis.')
+parser.add_argument('--mode', type=str, default='best', choices=['best', 'conservative'],
+                    help='The mode to run: "best" selects the top model, "conservative" uses a hardcoded safer model.')
+parser.add_argument('--cv_strategy', type=str, default='stratified', choices=['stratified', 'repeated', 'group'],
+                    help='The CV strategy to use.')
+args = parser.parse_args()
+
 
 print('='*80)
 print('TREE ENSEMBLE ANALYSIS')
@@ -106,7 +116,21 @@ le_title_pclass = LabelEncoder()
 train_fe['Title_Pclass'] = le_title_pclass.fit_transform(train_fe['Title_Pclass'])
 test_fe['Title_Pclass'] = le_title_pclass.transform(test_fe['Title_Pclass'])
 
-cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+# --- CV Strategy ---
+print(f"Running in {args.mode} mode.")
+print(f"CV Strategy: {args.cv_strategy}")
+print('='*80)
+
+groups = None
+if args.cv_strategy == 'stratified':
+    cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+elif args.cv_strategy == 'repeated':
+    cv = RepeatedStratifiedKFold(n_splits=5, n_repeats=3, random_state=42)
+elif args.cv_strategy == 'group':
+    cv = GroupKFold(n_splits=5)
+    # Create groups from Ticket column
+    groups = pd.factorize(train['Ticket'])[0]
+
 
 print('\n' + '='*80)
 print('TESTING ENHANCED FEATURE SETS')
@@ -162,8 +186,8 @@ for feat_name, feat_config in feature_configs.items():
             min_samples_leaf=rf_config['min_samples_leaf']
         )
 
-        scores = cross_val_score(rf, X, y, cv=cv, scoring='accuracy')
-        oof = cross_val_predict(rf, X, y, cv=cv, method='predict')
+        scores = cross_val_score(rf, X, y, cv=cv, scoring='accuracy', groups=groups)
+        oof = cross_val_predict(rf, X, y, cv=cv, method='predict', groups=groups)
         oof_acc = accuracy_score(y, oof)
 
         # Estimate gap based on #4 pattern
@@ -199,16 +223,6 @@ print(results_df.head(10)[['Config', 'NumFeatures', 'OOF', 'Expected_Gap', 'Expe
 
 print('\n' + '='*80)
 print('SELECTING BEST MODEL FROM CV')
-print('='*80)
-
-import argparse
-
-# --- Argument Parsing ---
-parser = argparse.ArgumentParser(description='Run tree ensemble analysis.')
-parser.add_argument('--mode', type=str, default='best', choices=['best', 'conservative'],
-                    help='The mode to run: "best" selects the top model, "conservative" uses a hardcoded safer model.')
-args = parser.parse_args()
-print(f"Running in {args.mode} mode.")
 print('='*80)
 
 

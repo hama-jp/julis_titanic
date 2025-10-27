@@ -80,7 +80,7 @@ meta_model = LogisticRegression(C=1.0, random_state=SEED)
 
 def get_oof_predictions(clf, x_train, y_train, x_test, n_folds=NFOLDS, seed=SEED):
     """
-    Generates out-of-fold predictions for a given classifier.
+    Generates out-of-fold prediction probabilities for a given classifier.
     """
     oof_train = np.zeros((len(x_train),))
     oof_test = np.zeros((len(x_test),))
@@ -95,8 +95,8 @@ def get_oof_predictions(clf, x_train, y_train, x_test, n_folds=NFOLDS, seed=SEED
 
         clf.fit(x_tr, y_tr)
 
-        oof_train[test_index] = clf.predict(x_te)
-        oof_test_skf[i, :] = clf.predict(x_test)
+        oof_train[test_index] = clf.predict_proba(x_te)[:, 1]
+        oof_test_skf[i, :] = clf.predict_proba(x_test)[:, 1]
 
     oof_test[:] = oof_test_skf.mean(axis=0)
     return oof_train.reshape(-1, 1), oof_test.reshape(-1, 1)
@@ -165,7 +165,8 @@ def main():
     meta_model.fit(X_train_meta, y_train)
 
     # Make final predictions
-    predictions = meta_model.predict(X_test_meta)
+    meta_predictions_proba = meta_model.predict_proba(X_test_meta)[:, 1]
+    predictions = (meta_predictions_proba > 0.5).astype(int)
 
     print("\n" + "="*80)
     print("SUBMISSION FILE CREATED")
